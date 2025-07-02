@@ -1,12 +1,18 @@
-// Sample data - In a real app, you would use Firebase or another backend
-let players = [
-    { username: "PESMaster99", region: "Europe" },
-    { username: "KonamiKing", region: "Asia" },
-    { username: "SoccerPro22", region: "North America" },
-    { username: "DribbleGod", region: "South America" },
-    { username: "GoalMachine", region: "Africa" },
-    { username: "ThroughBall", region: "Oceania" }
-];
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDCK9zGapNWsrEX7UCT-AhLkbcXECOht_0",
+    authDomain: "pes-gamer-f6342.firebaseapp.com",
+    projectId: "pes-gamer-f6342",
+    storageBucket: "pes-gamer-f6342.appspot.com",
+    messagingSenderId: "397106240623",
+    appId: "1:397106240623:web:36afe72121f26f33fd819a",
+    measurementId: "G-L4RWNLB6PT"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // DOM Elements
 const usernameForm = document.getElementById('usernameForm');
@@ -14,71 +20,105 @@ const playersList = document.getElementById('playersList');
 const filterRegion = document.getElementById('filterRegion');
 const refreshBtn = document.getElementById('refreshBtn');
 
-// Display players in the list
-function displayPlayers(playersToShow) {
-    if (playersToShow.length === 0) {
-        playersList.innerHTML = '<div class="no-players">No players found matching your criteria</div>';
+// Format date for display
+function formatDate(date) {
+    if (!date) return 'Just now';
+    return new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: 'numeric',
+        month: 'short'
+    }).format(date);
+}
+
+// Add player to DOM
+function addPlayerToDOM(player, id) {
+    // Skip if player doesn't match current filter
+    if (filterRegion.value && filterRegion.value !== player.region) {
         return;
     }
 
-    playersList.innerHTML = '';
+    const playerRow = document.createElement('div');
+    playerRow.className = 'player-row';
+    playerRow.dataset.id = id;
 
-    playersToShow.forEach(player => {
-        const playerRow = document.createElement('div');
-        playerRow.className = 'player-row';
+    playerRow.innerHTML = `
+        <div class="player-info">
+            <span class="player-username">${player.username}</span>
+        </div>
+        <span class="player-region">${player.region}</span>
+        <div class="player-meta">
+            <small>${formatDate(player.timestamp?.toDate())}</small>
+        </div>
+    `;
 
-        playerRow.innerHTML = `
-            <div class="player-info">
-                <span class="player-username">${player.username}</span>
-            </div>
-            <span class="player-region">${player.region}</span>
-        `;
+    playersList.appendChild(playerRow);
+}
 
-        playersList.appendChild(playerRow);
+// Apply region filter
+function applyRegionFilter() {
+    const allPlayerRows = document.querySelectorAll('.player-row');
+    const region = filterRegion.value;
+
+    allPlayerRows.forEach(row => {
+        const playerRegion = row.querySelector('.player-region')?.textContent;
+        row.style.display = (!region || playerRegion === region) ? 'flex' : 'none';
     });
 }
 
-// Filter players by region
-function filterPlayers() {
-    const region = filterRegion.value;
+// Real-time listener for players
+function setupRealTimeListener() {
+    return db.collection('players')
+        .orderBy('timestamp', 'desc')
+        .onSnapshot(snapshot => {
+            playersList.innerHTML = '';
 
-    if (region === '') {
-        displayPlayers(players);
-    } else {
-        const filteredPlayers = players.filter(player => player.region === region);
-        displayPlayers(filteredPlayers);
-    }
+            if (snapshot.empty) {
+                playersList.innerHTML = '<div class="no-players">No players found. Be the first!</div>';
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const player = doc.data();
+                addPlayerToDOM(player, doc.id);
+            });
+
+            applyRegionFilter();
+        }, error => {
+            console.error("Error loading players:", error);
+            playersList.innerHTML = '<div class="error">Error loading players. Please refresh.</div>';
+        });
 }
 
-// Add a new player
-usernameForm.addEventListener('submit', function (e) {
+// Form submission
+usernameForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const username = document.getElementById('username').value.trim();
     const region = document.getElementById('region').value;
 
-    if (username === '' || region === '') {
+    if (!username || !region) {
         alert('Please fill in all fields');
         return;
     }
 
-    // Add new player to the array
-    const newPlayer = { username, region };
-    players.unshift(newPlayer); // Add to beginning of array
+    try {
+        await db.collection('players').add({
+            username,
+            region,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-    // Reset form
-    usernameForm.reset();
-
-    // Update the display
-    filterPlayers();
-
-    // Show success message
-    alert(`${username} has been added successfully!`);
+        usernameForm.reset();
+    } catch (error) {
+        console.error("Error submitting player:", error);
+        alert('Error submitting username. Please try again.');
+    }
 });
 
 // Event listeners
-filterRegion.addEventListener('change', filterPlayers);
-refreshBtn.addEventListener('click', filterPlayers);
+filterRegion.addEventListener('change', applyRegionFilter);
+refreshBtn.addEventListener('click', applyRegionFilter);
 
-// Initial display
-displayPlayers(players);
+// Initialize
+const unsubscribe = setupRealTimeListener();
