@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "931562412862",
+    "project_id": "pes-gamers",
+    "storage_bucket": "pes-gamers.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931562412862:android:fca3deb3c3123a02806a6f",
+        "android_client_info": {
+          "package_name": "com.one37.PesGamer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6npOVuCJ2jB1WtgVw8S7c5QRdyVP0MWA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
