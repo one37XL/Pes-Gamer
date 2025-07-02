@@ -9,10 +9,16 @@ const firebaseConfig = {
     measurementId: "G-L4RWNLB6PT"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+// Initialize Firebase services
+let db;
+try {
+    const app = firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    console.log("Firebase initialized successfully");
+} catch (error) {
+    console.error("Firebase initialization failed:", error);
+    alert("Failed to initialize Firebase. Please check console for details.");
+}
 
 // DOM Elements
 const usernameForm = document.getElementById('usernameForm');
@@ -33,10 +39,7 @@ function formatDate(date) {
 
 // Add player to DOM
 function addPlayerToDOM(player, id) {
-    // Skip if player doesn't match current filter
-    if (filterRegion.value && filterRegion.value !== player.region) {
-        return;
-    }
+    if (filterRegion.value && filterRegion.value !== player.region) return;
 
     const playerRow = document.createElement('div');
     playerRow.className = 'player-row';
@@ -68,6 +71,11 @@ function applyRegionFilter() {
 
 // Real-time listener for players
 function setupRealTimeListener() {
+    if (!db) {
+        console.error("Firestore not initialized");
+        return () => { };
+    }
+
     return db.collection('players')
         .orderBy('timestamp', 'desc')
         .onSnapshot(snapshot => {
@@ -86,13 +94,24 @@ function setupRealTimeListener() {
             applyRegionFilter();
         }, error => {
             console.error("Error loading players:", error);
-            playersList.innerHTML = '<div class="error">Error loading players. Please refresh.</div>';
+            playersList.innerHTML = `
+                <div class="error">
+                    Error loading players. 
+                    <button onclick="window.location.reload()">Refresh Page</button>
+                    <p>${error.message}</p>
+                </div>
+            `;
         });
 }
 
 // Form submission
 usernameForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    if (!db) {
+        alert("Database not ready. Please try again later.");
+        return;
+    }
 
     const username = document.getElementById('username').value.trim();
     const region = document.getElementById('region').value;
@@ -108,11 +127,11 @@ usernameForm.addEventListener('submit', async (e) => {
             region,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-
         usernameForm.reset();
+        alert('Username submitted successfully!');
     } catch (error) {
-        console.error("Error submitting player:", error);
-        alert('Error submitting username. Please try again.');
+        console.error("Submission error:", error);
+        alert(`Error: ${error.message}`);
     }
 });
 
@@ -120,5 +139,17 @@ usernameForm.addEventListener('submit', async (e) => {
 filterRegion.addEventListener('change', applyRegionFilter);
 refreshBtn.addEventListener('click', applyRegionFilter);
 
-// Initialize
-const unsubscribe = setupRealTimeListener();
+// Initialize with error handling
+let unsubscribe;
+try {
+    unsubscribe = setupRealTimeListener();
+} catch (error) {
+    console.error("Failed to setup listener:", error);
+    playersList.innerHTML = `
+        <div class="error">
+            Failed to load players. 
+            <button onclick="window.location.reload()">Try Again</button>
+            <p>${error.message}</p>
+        </div>
+    `;
+}
