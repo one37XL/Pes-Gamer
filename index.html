@@ -3,879 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PES Gamer Directory</title>
-    <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --accent: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --success: #4cc9f0;
-            --warning: #f9c74f;
-            --danger: #f94144;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
+    <title>PES Gamer Connect</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f5f7ff;
-            color: var(--dark);
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            position: relative;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .description {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .auth-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .card {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--light-gray);
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        button:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background-color: var(--gray);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-        }
-
-        .btn-success {
-            background-color: var(--success);
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .filter-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .players-container {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-        }
-
-        .players-header {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            padding: 15px 20px;
-            background-color: var(--light);
-            font-weight: 600;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .players-list {
-            min-height: 200px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .player-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--light-gray);
-            transition: var(--transition);
-        }
-
-        .player-row:last-child {
-            border-bottom: none;
-        }
-
-        .player-row:hover {
-            background-color: #f9fafc;
-        }
-
-        .player-username {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .player-region {
-            display: flex;
-            align-items: center;
-        }
-
-        .player-meta {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .no-players, .error {
-            padding: 40px 20px;
-            text-align: center;
-            color: var(--gray);
-        }
-
-        .error {
-            color: var(--danger);
-        }
-
-        .error button {
-            margin-top: 15px;
-            background-color: var(--danger);
-        }
-
-        .status {
-            padding: 10px 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .status.success {
-            background-color: rgba(76, 201, 240, 0.2);
-            color: #2a8daf;
-            border-left: 4px solid var(--success);
-        }
-
-        .status.error {
-            background-color: rgba(249, 65, 68, 0.2);
-            color: #c82333;
-            border-left: 4px solid var(--danger);
-        }
-
-        .loading {
-            display: flex;
-            justify-content: center;
-            padding: 30px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-left-color: var(--primary);
-            animation: spin 1s linear infinite;
-        }
-
-        .auth-form {
-            background: white;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 20px;
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .auth-tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-
-        .auth-tab.active {
-            border-bottom-color: var(--primary);
-            font-weight: bold;
-        }
-
-        .auth-content {
-            display: none;
-        }
-
-        .auth-content.active {
-            display: block;
-        }
-
-        .user-profile {
-            display: none;
-            background: white;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 20px;
-        }
-
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .players-header, .player-row {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .player-meta {
-                grid-column: span 2;
-                margin-top: 10px;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-container {
-                width: 100%;
-            }
-
-            .auth-container {
-                position: static;
-                justify-content: center;
-                margin-top: 15px;
-            }
-        }
-        .pes-footer {
-    text-align: center;
-    margin-top: 40px;
-    padding: 20px;
-    color: #666;
-    font-size: 0.9rem;
-}
-    </style>
+    <meta name="description" content="Connect with PES/eFootball players worldwide. Find teammates, opponents, and build your dream team. Join our community of Pro Evolution Soccer gamers.">
+    <meta name="keywords" content="PES, eFootball, Pro Evolution Soccer, find PES players, PES teammates, PES opponents, PES gaming community">
+    <meta name="author" content="PES Gamer Connect">
+    <meta property="og:title" content="PES Gamer Connect - Find Teammates & Opponents">
+    <meta property="og:description" content="Connect with PES/eFootball players worldwide. Find teammates and opponents for your next match.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pes-gamer.vercel.app/">
+    <meta property="og:image" content="https://www.flaticon.com/free-icon/we-pes_588274">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PES Gamer Connect - Find Teammates & Opponents">
+    <meta name="twitter:description" content="Connect with PES/eFootball players worldwide.">
+    <meta name="twitter:image" content="https://www.flaticon.com/free-icon/we-pes_588274">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://www.flaticon.com/free-icon/we-pes_588274">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>PES Gamer Directory</h1>
-            <p class="description">Connect with other PES gamers around the world. Add your username and find players in your region.</p>
-            
-            <div class="auth-container">
-                <button id="showLoginBtn" class="btn-secondary">Login</button>
-                <button id="showSignupBtn">Sign Up</button>
-            </div>
+        <header class="pes-header">
+            <img src="efootball.png" alt="PES Logo" class="pes-logo">
+            <h1>PES Gamer Connect</h1>
+            <p>Find teammates and opponents worldwide</p>
         </header>
 
-        <div id="statusMessage" class="status"></div>
+        <main>
+            <section class="submit-section">
+                <h2><i class="fas fa-user-plus"></i> Add Your Username</h2>
+                <form id="usernameForm">
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-gamepad"></i> PES Username</label>
+                        <input type="text" id="username" placeholder="Your in-game username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="region"><i class="fas fa-globe"></i> Region</label>
+                        <select id="region" required>
+                            <option value="">Select your region</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Africa">Africa</option>
+                            <option value="North America">North America</option>
+                            <option value="South America">South America</option>
+                            <option value="Oceania">Oceania</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="pes-button">
+                        <i class="fas fa-paper-plane"></i> Submit
+                    </button>
+                </form>
+            </section>
 
-        <div id="userProfile" class="user-profile">
-            <div class="profile-header">
-                <h3>Welcome, <span id="userEmail"></span></h3>
-                <div>
-                    <button id="logoutBtn" class="btn-secondary">Logout</button>
-                    <button id="deleteAccountBtn" class="btn-danger">Delete Account</button>
-                </div>
-            </div>
-            <p>You can now add or manage your player profile below.</p>
-        </div>
-
-        <div id="authForms" class="auth-form">
-            <div class="auth-tabs">
-                <div class="auth-tab active" data-tab="login">Login</div>
-                <div class="auth-tab" data-tab="signup">Sign Up</div>
-            </div>
-            
-            <div id="loginForm" class="auth-content active">
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                </div>
-                <button id="loginBtn">Login</button>
-                <p id="loginError" class="error"></p>
-            </div>
-            
-            <div id="signupForm" class="auth-content">
-                <div class="form-group">
-                    <label for="signupEmail">Email</label>
-                    <input type="email" id="signupEmail" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label for="signupPassword">Password</label>
-                    <input type="password" id="signupPassword" placeholder="Create a password (min. 6 characters)" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
-                </div>
-                <button id="signupBtn">Sign Up</button>
-                <p id="signupError" class="error"></p>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Add Your Username</h2>
-            <form id="usernameForm">
-                <div class="form-group">
-                    <label for="username">PES Username</label>
-                    <input type="text" id="username" placeholder="Enter your PES username" required>
-                </div>
-                <div class="form-group">
-                    <label for="region">Region</label>
-                    <select id="region" required>
-                        <option value="">Select your region</option>
-                        <option value="North America">North America</option>
-                        <option value="South America">South America</option>
-                        <option value="Europe">Europe</option>
-                        <option value="Asia">Asia</option>
-                        <option value="Africa">Africa</option>
-                        <option value="Oceania">Oceania</option>
-                        <option value="Middle East">Middle East</option>
-                    </select>
-                </div>
-                <button type="submit" id="submitProfileBtn">Add Username</button>
-                <button type="button" id="deleteProfileBtn" class="btn-danger" style="display: none;">Delete My Profile</button>
-            </form>
-        </div>
-
-        <div class="card">
-            <div class="controls">
-                <h2>Player Directory</h2>
-                <div class="filter-container">
-                    <select id="filterRegion">
-                        <option value="">All Regions</option>
-                        <option value="North America">North America</option>
-                        <option value="South America">South America</option>
-                        <option value="Europe">Europe</option>
-                        <option value="Asia">Asia</option>
-                        <option value="Africa">Africa</option>
-                        <option value="Oceania">Oceania</option>
-                        <option value="Middle East">Middle East</option>
-                    </select>
-                    <button id="refreshBtn" class="btn-success">Refresh</button>
-                </div>
-            </div>
-
-            <div class="players-container">
-                <div class="players-header">
-                    <span>Username</span>
-                    <span>Region</span>
-                    <span>Added</span>
-                </div>
-                <div id="playersList" class="players-list">
-                    <div class="loading">
-                        <div class="spinner"></div>
+            <section class="players-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Available Players</h2>
+                    <div class="controls">
+                        <select id="filterRegion">
+                            <option value="">All Regions</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Africa">Africa</option>
+                            <option value="North America">North America</option>
+                            <option value="South America">South America</option>
+                            <option value="Oceania">Oceania</option>
+                        </select>
+                        <button id="refreshBtn" class="pes-button">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
+
+                <div class="players-list" id="playersList">
+                    <!-- Players will be listed here -->
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading players...
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="pes-footer">
+            <p>© 2025 PES Gamer Connect | Not affiliated with Konami</p>
+        </footer>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDCK9zGapNWsrEX7UCT-AhLkbcXECOht_0",
-            authDomain: "pes-gamer-f6342.firebaseapp.com",
-            projectId: "pes-gamer-f6342",
-            storageBucket: "pes-gamer-f6342.appspot.com",
-            messagingSenderId: "397106240623",
-            appId: "1:397106240623:web:36afe72121f26f33fd819a",
-            measurementId: "G-L4RWNLB6PT"
-        };
+    <script src="script.js"></script>
 
-        // Initialize Firebase services
-        let db, auth;
-        try {
-            // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            auth = firebase.auth();
-            console.log("Firebase initialized successfully");
-            showStatus("Firebase connected successfully!", "success");
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            showStatus("Failed to initialize Firebase. Please check console for details.", "error");
-        }
-
-        // DOM Elements
-        const usernameForm = document.getElementById('usernameForm');
-        const playersList = document.getElementById('playersList');
-        const filterRegion = document.getElementById('filterRegion');
-        const refreshBtn = document.getElementById('refreshBtn');
-        const statusMessage = document.getElementById('statusMessage');
-        const authForms = document.getElementById('authForms');
-        const userProfile = document.getElementById('userProfile');
-        const userEmail = document.getElementById('userEmail');
-        const showLoginBtn = document.getElementById('showLoginBtn');
-        const showSignupBtn = document.getElementById('showSignupBtn');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-        const deleteProfileBtn = document.getElementById('deleteProfileBtn');
-        const authTabs = document.querySelectorAll('.auth-tab');
-        const authContents = document.querySelectorAll('.auth-content');
-        const loginError = document.getElementById('loginError');
-        const signupError = document.getElementById('signupError');
-        const submitProfileBtn = document.getElementById('submitProfileBtn');
-
-        // Authentication state
-        let currentUser = null;
-        let userPlayerData = null;
-
-        // Show status message
-        function showStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = `status ${type}`;
-            statusMessage.style.display = 'block';
-            
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                statusMessage.style.display = 'none';
-            }, 5000);
-        }
-
-        // Switch auth tabs
-        authTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.getAttribute('data-tab');
-                
-                // Update active tab
-                authTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Update active content
-                authContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabId}Form`) {
-                        content.classList.add('active');
-                    }
-                });
-                
-                // Clear errors
-                loginError.textContent = '';
-                signupError.textContent = '';
-            });
-        });
-
-        // Show login form
-        showLoginBtn.addEventListener('click', () => {
-            authForms.style.display = 'block';
-            authTabs[0].click();
-        });
-
-        // Show signup form
-        showSignupBtn.addEventListener('click', () => {
-            authForms.style.display = 'block';
-            authTabs[1].click();
-        });
-
-        // Handle login
-        loginBtn.addEventListener('click', async () => {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!email || !password) {
-                loginError.textContent = 'Please fill in all fields';
-                return;
-            }
-            
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-                loginError.textContent = '';
-                authForms.style.display = 'none';
-            } catch (error) {
-                loginError.textContent = error.message;
-            }
-        });
-
-        // Handle signup
-        signupBtn.addEventListener('click', async () => {
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (!email || !password || !confirmPassword) {
-                signupError.textContent = 'Please fill in all fields';
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                signupError.textContent = 'Passwords do not match';
-                return;
-            }
-            
-            if (password.length < 6) {
-                signupError.textContent = 'Password must be at least 6 characters';
-                return;
-            }
-            
-            try {
-                await auth.createUserWithEmailAndPassword(email, password);
-                signupError.textContent = '';
-                authForms.style.display = 'none';
-            } catch (error) {
-                signupError.textContent = error.message;
-            }
-        });
-
-        // Handle logout
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
-
-        // Handle account deletion
-        deleteAccountBtn.addEventListener('click', async () => {
-            if (confirm('Are you sure you want to delete your account? This will also remove your player profile.')) {
-                try {
-                    // Delete player data first
-                    if (userPlayerData) {
-                        await db.collection('players').doc(userPlayerData.id).delete();
-                    }
-                    
-                    // Delete user account
-                    const user = auth.currentUser;
-                    await user.delete();
-                    
-                    showStatus('Account deleted successfully', 'success');
-                } catch (error) {
-                    console.error("Error deleting account:", error);
-                    showStatus(`Error: ${error.message}`, 'error');
-                }
-            }
-        });
-
-        // Handle profile deletion
-        deleteProfileBtn.addEventListener('click', async () => {
-            if (confirm('Are you sure you want to delete your player profile?')) {
-                try {
-                    await db.collection('players').doc(userPlayerData.id).delete();
-                    userPlayerData = null;
-                    usernameForm.reset();
-                    deleteProfileBtn.style.display = 'none';
-                    submitProfileBtn.textContent = 'Add Username';
-                    showStatus('Profile deleted successfully', 'success');
-                } catch (error) {
-                    console.error("Error deleting profile:", error);
-                    showStatus(`Error: ${error.message}`, 'error');
-                }
-            }
-        });
-
-        // Authentication state observer
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            
-            if (user) {
-                // User is signed in
-                authForms.style.display = 'none';
-                userProfile.style.display = 'block';
-                userEmail.textContent = user.email;
-                
-                // Check if user has a player profile
-                const playerQuery = await db.collection('players')
-                    .where('userId', '==', user.uid)
-                    .limit(1)
-                    .get();
-                    
-                if (!playerQuery.empty) {
-                    userPlayerData = {
-                        id: playerQuery.docs[0].id,
-                        ...playerQuery.docs[0].data()
-                    };
-                    
-                    // Pre-fill the form with user's data
-                    document.getElementById('username').value = userPlayerData.username;
-                    document.getElementById('region').value = userPlayerData.region;
-                    
-                    // Update UI
-                    deleteProfileBtn.style.display = 'inline-block';
-                    submitProfileBtn.textContent = 'Update Profile';
-                } else {
-                    userPlayerData = null;
-                    deleteProfileBtn.style.display = 'none';
-                    submitProfileBtn.textContent = 'Add Username';
-                }
-            } else {
-                // User is signed out
-                authForms.style.display = 'block';
-                userProfile.style.display = 'none';
-                usernameForm.reset();
-                deleteProfileBtn.style.display = 'none';
-                submitProfileBtn.textContent = 'Add Username';
-                userPlayerData = null;
-            }
-        });
-
-        // Format date for display
-        function formatDate(date) {
-            if (!date) return 'Just now';
-            
-            const now = new Date();
-            const diffInSeconds = Math.floor((now - date) / 1000);
-            
-            if (diffInSeconds < 60) return 'Just now';
-            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
-            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hr ago`;
-            
-            return new Intl.DateTimeFormat('en-US', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-            }).format(date);
-        }
-
-        // Add player to DOM
-        function addPlayerToDOM(player, id) {
-            if (filterRegion.value && filterRegion.value !== player.region) return;
-
-            const playerRow = document.createElement('div');
-            playerRow.className = 'player-row';
-            playerRow.dataset.id = id;
-
-            playerRow.innerHTML = `
-                <div class="player-info">
-                    <span class="player-username">${player.username}</span>
-                </div>
-                <span class="player-region">${player.region}</span>
-                <div class="player-meta">
-                    <small>${formatDate(player.timestamp?.toDate())}</small>
-                </div>
-            `;
-
-            playersList.appendChild(playerRow);
-        }
-
-        // Apply region filter
-        function applyRegionFilter() {
-            const allPlayerRows = document.querySelectorAll('.player-row');
-            const region = filterRegion.value;
-
-            allPlayerRows.forEach(row => {
-                const playerRegion = row.querySelector('.player-region')?.textContent;
-                row.style.display = (!region || playerRegion === region) ? 'grid' : 'none';
-            });
-        }
-
-        // Real-time listener for players
-        function setupRealTimeListener() {
-            if (!db) {
-                console.error("Firestore not initialized");
-                playersList.innerHTML = `
-                    <div class="error">
-                        Database not connected. 
-                        <button onclick="window.location.reload()">Refresh Page</button>
-                    </div>
-                `;
-                return () => {};
-            }
-
-            return db.collection('players')
-                .orderBy('timestamp', 'desc')
-                .onSnapshot(snapshot => {
-                    playersList.innerHTML = '';
-
-                    if (snapshot.empty) {
-                        playersList.innerHTML = '<div class="no-players">No players found. Be the first to add your username!</div>';
-                        return;
-                    }
-
-                    snapshot.forEach(doc => {
-                        const player = doc.data();
-                        addPlayerToDOM(player, doc.id);
-                    });
-
-                    applyRegionFilter();
-                }, error => {
-                    console.error("Error loading players:", error);
-                    playersList.innerHTML = `
-                        <div class="error">
-                            Error loading players. 
-                            <button onclick="window.location.reload()">Refresh Page</button>
-                            <p>${error.message}</p>
-                        </div>
-                    `;
-                });
-        }
-
-        // Form submission
-        usernameForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (!db) {
-                showStatus("Database not ready. Please try again later.", "error");
-                return;
-            }
-
-            // Check if user is authenticated
-            if (!currentUser) {
-                showStatus("Please sign in to add your username", "error");
-                return;
-            }
-
-            const username = document.getElementById('username').value.trim();
-            const region = document.getElementById('region').value;
-
-            if (!username || !region) {
-                showStatus('Please fill in all fields', "error");
-                return;
-            }
-
-            try {
-                if (userPlayerData) {
-                    // Update existing player profile
-                    await db.collection('players').doc(userPlayerData.id).update({
-                        username,
-                        region,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    showStatus('Profile updated successfully!', "success");
-                } else {
-                    // Create new player profile
-                    await db.collection('players').add({
-                        username,
-                        region,
-                        userId: currentUser.uid,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    showStatus('Username submitted successfully!', "success");
-                }
-            } catch (error) {
-                console.error("Submission error:", error);
-                showStatus(`Error: ${error.message}`, "error");
-            }
-        });
-
-        // Event listeners
-        filterRegion.addEventListener('change', applyRegionFilter);
-        refreshBtn.addEventListener('click', () => {
-            playersList.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-            setTimeout(applyRegionFilter, 500);
-        });
-
-        // Initialize with error handling
-        let unsubscribe;
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                unsubscribe = setupRealTimeListener();
-            } catch (error) {
-                console.error("Failed to setup listener:", error);
-                playersList.innerHTML = `
-                    <div class="error">
-                        Failed to load players. 
-                        <button onclick="window.location.reload()">Try Again</button>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-            }
-        });
-    </script>
-            <footer class="pes-footer">
-            <p>© 2025 PES Gamer Connect | Not affiliated with Konami</p>
-            <p>Updates coming soon// by Nicklaus1917</p>
-            
-        </footer>
+    
 </body>
 </html>
